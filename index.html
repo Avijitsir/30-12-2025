@@ -20,7 +20,7 @@
         <div class="fs-box">
             <span class="material-icons" style="font-size: 40px; color: #ff9800;">warning</span>
             <h3>সতর্কতা!</h3>
-            <p>ফুলস্ক্রিন মোড বন্ধ করা যাবে না। পরীক্ষা চালিয়ে যেতে নিচের বাটনে ক্লিক করুন।</p>
+            <p>ফুলস্ক্রিন মোড বন্ধ করা যাবে না।</p>
             <button id="returnFsBtn" class="tb-btn primary">Return to Fullscreen</button>
         </div>
     </div>
@@ -29,22 +29,20 @@
         <div class="inst-header">
             <h2 class="inst-title" id="instTitle">General Instructions</h2>
             <div class="lang-box">
-                <span id="lblChooseLang">Choose Language: </span>
+                <span id="lblChooseLang">Language: </span>
                 <select class="inst-select" id="langSelector">
                     <option value="en">English</option>
                     <option value="bn">Bengali</option>
                 </select>
             </div>
         </div>
-
         <div class="inst-content" id="instContent">Loading Instructions...</div>
-
         <div class="inst-footer">
             <div class="declaration">
                 <input type="checkbox" id="agreeCheck">
-                <label for="agreeCheck" id="agreeLabel">I have read and understood the instructions.</label>
+                <label for="agreeCheck" id="agreeLabel">I have read the instructions.</label>
             </div>
-            <button class="begin-btn" id="startTestBtn" disabled>I am ready to begin</button>
+            <button class="begin-btn" id="startTestBtn" disabled>Start Exam</button>
         </div>
     </div>
 
@@ -63,19 +61,15 @@
             </div>
         </header>
 
-        <div class="section-bar">
-            <div class="chip active">All Sections</div>
-        </div>
-
         <div class="q-info-bar">
-            <div class="q-num">Question No. <span id="currentQNum">1</span></div>
+            <div class="q-num">Q. <span id="currentQNum">1</span></div>
             <div class="q-meta">
                 <div class="marks-badge">
                     <span class="plus" id="dispPosMark">+1</span>
-                    <span class="minus" id="dispNegMark">-0.33</span>
+                    <span class="minus" id="dispNegMark">-0.25</span>
                 </div>
                 <div class="lang-select">
-                    View in <select id="quizLangSelect" style="border:none; background:transparent; font-weight:bold;"><option value="bn">Bengali</option><option value="en">English</option></select>
+                    Lang: <select id="quizLangSelect" style="border:none; background:transparent; font-weight:bold;"><option value="bn">BN</option><option value="en">EN</option></select>
                 </div>
             </div>
         </div>
@@ -96,34 +90,31 @@
         <div class="drawer-overlay" id="sheetOverlay"></div>
         <div class="side-drawer" id="paletteSheet">
             <div class="drawer-header">
-                <div class="user-info"><div class="avatar">U</div><span>Candidate</span></div>
+                <div class="user-info"><span>Candidate</span></div>
                 <span class="material-icons close-drawer" id="closeSheetBtn">close</span>
             </div>
             <div class="legend-grid">
-                <div class="l-item"><span class="dot answered"></span> Answered</div>
-                <div class="l-item"><span class="dot marked"></span> Marked</div>
-                <div class="l-item"><span class="dot not-visited"></span> Not Visited</div>
-                <div class="l-item"><span class="dot marked-ans"></span> Marked & Ans</div>
-                <div class="l-item"><span class="dot not-answered"></span> Not Answered</div>
+                <div class="l-item"><span class="dot answered"></span> Ans</div>
+                <div class="l-item"><span class="dot not-answered"></span> Not Ans</div>
+                <div class="l-item"><span class="dot marked"></span> Mark</div>
+                <div class="l-item"><span class="dot marked-ans"></span> Mark+Ans</div>
             </div>
             <div class="section-header">Questions Palette</div>
             <div class="drawer-content"><div class="palette-grid" id="paletteGrid"></div></div>
-            <div class="drawer-footer"><button class="tb-btn submit" id="submitTestBtn" style="background:#00c696; color:white; width:100%;">Submit Test</button></div>
+            <div class="drawer-footer"><button class="tb-btn submit" id="submitTestBtn">Submit Test</button></div>
         </div>
     </div>
 
     <div id="resultScreen" class="full-screen-result" style="display: none;">
-        
         <div class="res-header-pnl">
-            <h2 style="margin:0 0 5px 0; text-align:center; font-size:16px; color:#333;">Result Analysis</h2>
-            
-            <div id="passFailBox" style="text-align:center; padding:4px; margin-bottom:5px; font-weight:bold; font-size:14px; border-radius:4px;"></div>
+            <h2 style="margin:0 0 5px 0; text-align:center; font-size:16px;">Result Analysis</h2>
+            <div id="passFailBox" style="text-align:center; padding:5px; margin-bottom:5px; font-weight:bold; font-size:14px; border-radius:4px;"></div>
 
             <div class="score-grid">
                 <div class="s-item"><span class="lbl">Score</span><span class="val" id="resScore">0</span></div>
                 <div class="s-item"><span class="lbl">Correct</span><span class="val green" id="resCorrect">0</span></div>
                 <div class="s-item"><span class="lbl">Wrong</span><span class="val red" id="resWrong">0</span></div>
-                <div class="s-item"><span class="lbl">Skipped</span><span class="val gray" id="resSkip">0</span></div>
+                <div class="s-item"><span class="lbl">Skip</span><span class="val gray" id="resSkip">0</span></div>
             </div>
             
             <div class="filter-tabs">
@@ -132,25 +123,24 @@
                 <button class="f-btn" onclick="applyFilter('wrong')">Wrong</button>
                 <button class="f-btn" onclick="applyFilter('skipped')">Skipped</button>
             </div>
-            
             <div class="res-palette-scroll" id="resPaletteContainer"></div>
         </div>
 
         <div class="res-content-area" id="resContentArea">
             <div class="q-info-bar" style="border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; z-index:5;">
-                <div class="q-num">Question No. <span id="resCurrentQNum">1</span></div>
-                <div class="res-status-badge" id="resQStatusBadge">Correct</div>
+                <div class="q-num">Q. <span id="resCurrentQNum">1</span></div>
+                <div class="res-status-badge" id="resQStatusBadge">--</div>
             </div>
             
-            <div class="content-area" style="padding-bottom: 80px;"> <div class="question-text" id="resQuestionText">Loading...</div>
+            <div class="content-area" style="padding-bottom:80px;">
+                <div class="question-text" id="resQuestionText">Loading...</div>
                 <div class="options-list" id="resOptionsContainer"></div>
-                
                 <div id="resExplanation" class="explanation-box" style="display:none;">
                     <strong>Explanation:</strong> <span id="resExplText"></span>
                 </div>
             </div>
         </div>
-        
+
         <div id="resEmptyMsg" style="display:none; flex:1; justify-content:center; align-items:center; color:#888;">No questions found.</div>
 
         <footer class="app-footer">
@@ -158,7 +148,7 @@
                 <button class="tb-btn secondary" id="resPrevBtn">Previous</button>
                 <button class="tb-btn secondary" id="resNextBtn">Next</button>
             </div>
-            <div class="footer-row" style="margin-top:8px;">
+            <div class="footer-row" style="margin-top:5px;">
                 <button class="tb-btn primary full-width" style="background:#d32f2f;" onclick="location.reload()">Close & Exit</button>
             </div>
         </footer>
