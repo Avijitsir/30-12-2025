@@ -1,4 +1,4 @@
-// Firebase Config
+// --- Firebase Config ---
 const firebaseConfig = {
     apiKey: "AIzaSyDwGzTPmFg-gjoYtNWNJM47p22NfBugYFA",
     authDomain: "mock-test-1eea6.firebaseapp.com",
@@ -12,7 +12,7 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// Globals
+// --- Globals ---
 let questions = [];
 let currentIdx = 0;
 let status, userAnswers;
@@ -22,6 +22,7 @@ let timeLeft = 90 * 60;
 let isPaused = false;
 let filteredIndices = [];
 let quizSettings = { passMark: 30, posMark: 1, negMark: 0.33 };
+let currentQuizId = null;
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -30,13 +31,13 @@ function shuffleArray(array) {
     }
 }
 
-// Load Quiz
+// --- Load Quiz ---
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const quizId = urlParams.get('id');
-    if (quizId) {
-        document.getElementById('instContent').innerHTML = "<div style='text-align:center; padding:20px;'>Loading Quiz Details... Please wait.</div>";
-        loadQuizFromFirebase(quizId);
+    currentQuizId = urlParams.get('id');
+    if (currentQuizId) {
+        document.getElementById('instContent').innerHTML = "<div style='text-align:center; padding:20px; color:#666;'>Loading Quiz Details... Please wait.</div>";
+        loadQuizFromFirebase(currentQuizId);
     } else {
         alert("URL Error: No Quiz ID found.");
     }
@@ -46,6 +47,7 @@ function loadQuizFromFirebase(quizId) {
     database.ref('quizzes/' + quizId).once('value').then((snapshot) => {
         const data = snapshot.val();
         if (data && data.questions) {
+            // 1. Load Settings
             if(data.title) document.getElementById('instTitle').innerText = data.title;
             if(data.duration) timeLeft = parseInt(data.duration) * 60;
             if(data.passMark) quizSettings.passMark = parseFloat(data.passMark);
@@ -57,10 +59,10 @@ function loadQuizFromFirebase(quizId) {
 
             questions = data.questions;
 
-            // Randomize Questions
-            if(data.randomizeQuestions) { shuffleArray(questions); }
-
-            // Randomize Options
+            // 2. Randomization Logic
+            if(data.randomizeQuestions) {
+                shuffleArray(questions);
+            }
             if(data.randomizeOptions) {
                 questions.forEach(q => {
                     const correctText = q.options[q.correctIndex];
@@ -77,23 +79,52 @@ function loadQuizFromFirebase(quizId) {
             status = new Array(questions.length).fill(0); 
             userAnswers = new Array(questions.length).fill(null); 
             
-            const instHTML = `
-                <div style="font-family: 'Roboto', sans-serif; font-size: 15px; line-height: 1.6;">
-                    <h3 style="margin-top:0;">Please read the instructions carefully:</h3>
-                    <p>1. <strong>Total Duration:</strong> ${data.duration || 90} Minutes.</p>
-                    <p>2. <strong>Marking Scheme:</strong> +${quizSettings.posMark} for Correct, -${quizSettings.negMark} for Wrong.</p>
-                    <p>3. <strong>Pass Mark:</strong> ${quizSettings.passMark}.</p>
-                    <p>4. Use the Palette to navigate.</p>
+            // --- 3. Previous Score Logic (Optional) ---
+            let prevScoreMsg = "";
+            const savedScore = localStorage.getItem('last_score_' + quizId);
+            if(savedScore) {
+                prevScoreMsg = `<div style="background:#e8f5e9; color:#2e7d32; padding:10px; border-radius:5px; margin-bottom:15px; border:1px solid #c8e6c9;">
+                    <strong>আপনার পূর্ববর্তী ফলাফল:</strong> ${savedScore}
                 </div>`;
+            }
+
+            // --- 4. DETAILED INSTRUCTION PAGE (BENGALI) ---
+            const instHTML = `
+                ${prevScoreMsg}
+                <div style="font-family: 'Roboto', sans-serif; font-size: 15px; line-height: 1.6; color:#333;">
+                    <h3 style="margin-top:0; color:#0d47a1;">পরীক্ষার্থীর নাম:</h3>
+                    <input type="text" id="stdName" placeholder="আপনার নাম লিখুন..." style="width:100%; padding:10px; margin-bottom:20px; border:1px solid #ccc; border-radius:4px;">
+                    
+                    <h3 style="margin-bottom:10px; color:#0d47a1;">সাধারণ নির্দেশাবলী (Instructions):</h3>
+                    <p>১. <strong>মোট সময় (Duration):</strong> ${data.duration} মিনিট।</p>
+                    <p>২. <strong>পাস মার্ক (Pass Mark):</strong> ${quizSettings.passMark}।</p>
+                    <p>৩. <strong>মার্কিং:</strong> প্রতিটি সঠিক উত্তরের জন্য <b>+${quizSettings.posMark}</b> এবং ভুল উত্তরের জন্য <b>-${quizSettings.negMark}</b> নম্বর কাটা যাবে।</p>
+                    <p>৪. ডানদিকের প্যালেট ব্যবহার করে যে কোনো প্রশ্নে যাওয়া যাবে।</p>
+                    
+                    <div style="background:#f9f9f9; padding:10px; border-radius:5px; margin-top:10px; font-size:13px;">
+                        <strong>কালার কোড (Legend):</strong>
+                        <ul class="legend-list" style="margin-top:5px;">
+                            <li><span class="dot-icon not-visited"></span> দেখেনি (Not Visited)</li>
+                            <li><span class="dot-icon not-answered"></span> উত্তর দেয়নি (Not Answered)</li>
+                            <li><span class="dot-icon answered"></span> উত্তর দিয়েছে (Answered)</li>
+                            <li><span class="dot-icon marked"></span> মার্ক করা (Marked for Review)</li>
+                        </ul>
+                    </div>
+                </div>`;
+            
             document.getElementById('instContent').innerHTML = instHTML;
             document.getElementById('startTestBtn').disabled = false;
         } else {
-            alert("Quiz not found.");
+            document.getElementById('instContent').innerHTML = "Quiz not found or invalid.";
         }
     });
 }
 
 document.getElementById('startTestBtn').addEventListener('click', () => {
+    const name = document.getElementById('stdName').value.trim();
+    if(!name) { alert("দয়া করে আপনার নাম লিখুন।"); return; }
+    localStorage.setItem('student_name', name); // Save name locally
+
     document.getElementById('instructionScreen').style.display = 'none';
     document.getElementById('quizMainArea').style.display = 'block';
     if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
@@ -101,16 +132,16 @@ document.getElementById('startTestBtn').addEventListener('click', () => {
     startTimer();
 });
 
-// Fullscreen
+// Fullscreen Logic
 document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) document.getElementById('fullscreenOverlay').style.display = 'flex';
+    if (!document.fullscreenElement && !isSubmitted) document.getElementById('fullscreenOverlay').style.display = 'flex';
     else document.getElementById('fullscreenOverlay').style.display = 'none';
 });
 document.getElementById('returnFsBtn').addEventListener('click', () => {
     if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
 });
 
-// Render Question
+// --- Render Question ---
 function loadQuestion(index) {
     if(status[index] === 0) status[index] = 1; 
     currentIdx = index;
@@ -154,7 +185,7 @@ document.getElementById('saveNextBtn').addEventListener('click', () => {
     if(isPaused) return; 
     const i = getSelIdx(); 
     if(i!==null){ userAnswers[currentIdx]=i; status[currentIdx]=2; } else status[currentIdx]=1; 
-    if (currentIdx === questions.length - 1) { if (confirm("Submit Test?")) submitTest(); } else { nextQ(); }
+    if (currentIdx === questions.length - 1) { if (confirm("আপনি কি নিশ্চিত যে আপনি পরীক্ষা শেষ করতে চান?")) submitTest(); } else { nextQ(); }
 });
 document.getElementById('clearResponseBtn').addEventListener('click', () => { if(isPaused) return; document.querySelectorAll('.option-row').forEach(r => r.classList.remove('selected')); userAnswers[currentIdx]=null; status[currentIdx]=1; });
 function nextQ() { if(currentIdx < questions.length - 1) loadQuestion(currentIdx + 1); else openDrawer(); }
@@ -191,25 +222,62 @@ document.getElementById('pauseBtn').addEventListener('click', () => {
     else { startTimer(); isPaused=false; b.innerText="Pause"; b.style.background="white"; b.style.color="#007bff"; ca.style.opacity='1'; }
 });
 
-// Submit & Result
+// --- SUBMIT & RESULT ANALYSIS (Detailed) ---
 function submitTest() {
     if(isSubmitted) return;
     isSubmitted = true;
     clearInterval(timerInterval);
     if(document.exitFullscreen) document.exitFullscreen();
+
     let s=0, c=0, w=0, sk=0;
-    questions.forEach((q, i) => { if(userAnswers[i]!==null) { if(userAnswers[i]===q.correctIndex) { s += quizSettings.posMark; c++; } else { s -= quizSettings.negMark; w++; } } else sk++; });
-    const score = s.toFixed(2);
-    document.getElementById('resScore').innerText = score; document.getElementById('resCorrect').innerText = c; document.getElementById('resWrong').innerText = w; document.getElementById('resSkip').innerText = sk;
+    questions.forEach((q, i) => { 
+        if(userAnswers[i]!==null) { 
+            if(userAnswers[i]===q.correctIndex) { s += quizSettings.posMark; c++; } 
+            else { s -= quizSettings.negMark; w++; } 
+        } else sk++; 
+    });
     
+    const score = s.toFixed(2);
+    
+    // Save to Firebase
+    const stdName = document.getElementById('stdName').value || 'Anonymous';
+    if(currentQuizId) {
+        database.ref('results/' + currentQuizId).push({
+            name: stdName, score: score, correct: c, wrong: w, date: new Date().toLocaleString()
+        });
+    }
+    // Save locally to show "Last Score" next time
+    localStorage.setItem('last_score_' + currentQuizId, score);
+
+    document.getElementById('resScore').innerText = score; 
+    document.getElementById('resCorrect').innerText = c; 
+    document.getElementById('resWrong').innerText = w; 
+    document.getElementById('resSkip').innerText = sk;
+    
+    // --- Pass/Fail Logic with Analysis ---
     const passBox = document.getElementById('passFailBox');
-    if(s >= quizSettings.passMark) { passBox.innerHTML = `🎉 PASSED!`; passBox.style.background = "#d4edda"; passBox.style.color = "#155724"; } 
-    else { passBox.innerHTML = `😞 FAILED!`; passBox.style.background = "#f8d7da"; passBox.style.color = "#721c24"; }
+    
+    if(s >= quizSettings.passMark) {
+        passBox.innerHTML = `🎉 অভিনন্দন! আপনি পাস করেছেন।`; 
+        passBox.style.background = "#d4edda"; 
+        passBox.style.color = "#155724"; 
+        passBox.style.border = "1px solid #c3e6cb";
+    } else {
+        const needed = (quizSettings.passMark - s).toFixed(2);
+        passBox.innerHTML = `😞 দুঃখিত! আপনি ফেল করেছেন।<br>
+        <span style="font-size:14px; font-weight:normal; display:block; margin-top:5px;">
+            পাস করার জন্য আরও <strong>${needed}</strong> নম্বর প্রয়োজন ছিল।
+        </span>`; 
+        passBox.style.background = "#f8d7da"; 
+        passBox.style.color = "#721c24"; 
+        passBox.style.border = "1px solid #f5c6cb";
+    }
 
     document.getElementById('resultModal').style.display = 'flex';
     applyFilter('all');
 }
 
+// ... (Filter & Result Render functions remain same) ...
 function applyFilter(t) {
     document.querySelectorAll('.f-btn').forEach(b => { b.classList.remove('active'); if(b.innerText.toLowerCase()===t) b.classList.add('active'); });
     filteredIndices = [];
