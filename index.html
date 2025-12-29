@@ -36,9 +36,7 @@
                 </select>
             </div>
         </div>
-
         <div class="inst-content" id="instContent">Loading Instructions...</div>
-
         <div class="inst-footer">
             <div class="declaration">
                 <input type="checkbox" id="agreeCheck">
@@ -112,53 +110,56 @@
         </div>
     </div>
 
-    <div id="resultModal" class="modal">
-        <div class="modal-content result-box">
-            <div class="res-header-pnl">
-                <h2 style="margin:0 0 5px 0; text-align:center;">Result Analysis</h2>
-                
-                <div id="passFailBox" style="text-align:center; padding:8px; margin-bottom:10px; font-weight:bold; font-size:16px; border-radius:5px;"></div>
+    <div id="resultScreen" class="full-screen-result" style="display: none;">
+        
+        <div class="res-header-pnl">
+            <h2 style="margin:0 0 5px 0; text-align:center; font-size:18px; color:#007bff;">Result Analysis</h2>
+            
+            <div id="passFailBox" style="text-align:center; padding:8px; margin-bottom:10px; font-weight:bold; font-size:15px; border-radius:5px;"></div>
 
-                <div class="score-grid">
-                    <div class="s-item"><span class="lbl">Score</span><span class="val" id="resScore">0</span></div>
-                    <div class="s-item"><span class="lbl">Correct</span><span class="val green" id="resCorrect">0</span></div>
-                    <div class="s-item"><span class="lbl">Wrong</span><span class="val red" id="resWrong">0</span></div>
-                    <div class="s-item"><span class="lbl">Skipped</span><span class="val gray" id="resSkip">0</span></div>
-                </div>
-                <div class="filter-tabs">
-                    <button class="f-btn active" onclick="applyFilter('all')">All</button>
-                    <button class="f-btn" onclick="applyFilter('correct')">Correct</button>
-                    <button class="f-btn" onclick="applyFilter('wrong')">Wrong</button>
-                    <button class="f-btn" onclick="applyFilter('skipped')">Skipped</button>
-                </div>
-                <div class="res-palette-scroll" id="resPaletteContainer"></div>
-            </div>
-
-            <div class="res-content-area" id="resContentArea">
-                <div class="q-info-bar" style="border-bottom:1px solid #eee;">
-                    <div class="q-num">Question No. <span id="resCurrentQNum">1</span></div>
-                    <div class="res-status-badge" id="resQStatusBadge">Correct</div>
-                </div>
-                <div class="content-area" style="padding-bottom: 20px;">
-                    <div class="question-text" id="resQuestionText">Loading...</div>
-                    <div class="options-list" id="resOptionsContainer"></div>
-                    
-                    <div id="resExplanation" class="explanation-box" style="display:none;">
-                        <strong>Explanation:</strong> <span id="resExplText"></span>
-                    </div>
-                </div>
+            <div class="score-grid">
+                <div class="s-item"><span class="lbl">Score</span><span class="val" id="resScore">0</span></div>
+                <div class="s-item"><span class="lbl">Correct</span><span class="val green" id="resCorrect">0</span></div>
+                <div class="s-item"><span class="lbl">Wrong</span><span class="val red" id="resWrong">0</span></div>
+                <div class="s-item"><span class="lbl">Skipped</span><span class="val gray" id="resSkip">0</span></div>
             </div>
             
-            <div id="resEmptyMsg" style="display:none; flex:1; justify-content:center; align-items:center; color:#888;">No questions found in this category.</div>
+            <div class="filter-tabs">
+                <button class="f-btn active" onclick="applyFilter('all')">All</button>
+                <button class="f-btn" onclick="applyFilter('correct')">Correct</button>
+                <button class="f-btn" onclick="applyFilter('wrong')">Wrong</button>
+                <button class="f-btn" onclick="applyFilter('skipped')">Skipped</button>
+            </div>
+            
+            <div class="res-palette-scroll" id="resPaletteContainer"></div>
+        </div>
 
-            <div class="result-footer">
-                <div class="footer-row">
-                    <button class="tb-btn secondary" id="resPrevBtn">Previous</button>
-                    <button class="tb-btn secondary" id="resNextBtn">Next</button>
+        <div class="res-content-area" id="resContentArea">
+            <div class="q-info-bar" style="border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; z-index:5;">
+                <div class="q-num">Question No. <span id="resCurrentQNum">1</span></div>
+                <div class="res-status-badge" id="resQStatusBadge">Correct</div>
+            </div>
+            
+            <div class="content-area" style="padding-bottom: 80px;"> <div class="question-text" id="resQuestionText">Loading...</div>
+                <div class="options-list" id="resOptionsContainer"></div>
+                
+                <div id="resExplanation" class="explanation-box" style="display:none;">
+                    <strong>Explanation:</strong> <span id="resExplText"></span>
                 </div>
-                <button class="tb-btn primary full-width" style="margin-top:10px; width:100%; background:#007bff; color:white;" onclick="location.reload()">Close & Re-attempt</button>
             </div>
         </div>
+        
+        <div id="resEmptyMsg" style="display:none; flex:1; justify-content:center; align-items:center; color:#888;">No questions found.</div>
+
+        <footer class="app-footer">
+            <div class="footer-row">
+                <button class="tb-btn secondary" id="resPrevBtn">Previous</button>
+                <button class="tb-btn secondary" id="resNextBtn">Next</button>
+            </div>
+            <div class="footer-row" style="margin-top:8px;">
+                <button class="tb-btn primary full-width" style="background:#d32f2f;" onclick="location.reload()">Close & Exit</button>
+            </div>
+        </footer>
     </div>
 
     <script src="script.js"></script>
