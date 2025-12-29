@@ -79,7 +79,7 @@ function loadQuizFromFirebase(quizId) {
             status = new Array(questions.length).fill(0); 
             userAnswers = new Array(questions.length).fill(null); 
             
-            // --- 3. Previous Score Logic (Optional) ---
+            // --- 3. Previous Score Logic ---
             let prevScoreMsg = "";
             const savedScore = localStorage.getItem('last_score_' + quizId);
             if(savedScore) {
@@ -88,7 +88,7 @@ function loadQuizFromFirebase(quizId) {
                 </div>`;
             }
 
-            // --- 4. DETAILED INSTRUCTION PAGE (BENGALI) ---
+            // --- 4. DETAILED INSTRUCTION PAGE (NO FULL STOP AT END) ---
             const instHTML = `
                 ${prevScoreMsg}
                 <div style="font-family: 'Roboto', sans-serif; font-size: 15px; line-height: 1.6; color:#333;">
@@ -96,10 +96,10 @@ function loadQuizFromFirebase(quizId) {
                     <input type="text" id="stdName" placeholder="আপনার নাম লিখুন..." style="width:100%; padding:10px; margin-bottom:20px; border:1px solid #ccc; border-radius:4px;">
                     
                     <h3 style="margin-bottom:10px; color:#0d47a1;">সাধারণ নির্দেশাবলী (Instructions):</h3>
-                    <p>১. <strong>মোট সময় (Duration):</strong> ${data.duration} মিনিট।</p>
-                    <p>২. <strong>পাস মার্ক (Pass Mark):</strong> ${quizSettings.passMark}।</p>
-                    <p>৩. <strong>মার্কিং:</strong> প্রতিটি সঠিক উত্তরের জন্য <b>+${quizSettings.posMark}</b> এবং ভুল উত্তরের জন্য <b>-${quizSettings.negMark}</b> নম্বর কাটা যাবে।</p>
-                    <p>৪. ডানদিকের প্যালেট ব্যবহার করে যে কোনো প্রশ্নে যাওয়া যাবে।</p>
+                    <p>১. <strong>মোট সময় (Duration):</strong> ${data.duration} মিনিট</p>
+                    <p>২. <strong>পাস মার্ক (Pass Mark):</strong> ${quizSettings.passMark}</p>
+                    <p>৩. <strong>মার্কিং:</strong> প্রতিটি সঠিক উত্তরের জন্য <b>+${quizSettings.posMark}</b> এবং ভুল উত্তরের জন্য <b>-${quizSettings.negMark}</b> নম্বর কাটা যাবে</p>
+                    <p>৪. ডানদিকের প্যালেট ব্যবহার করে যে কোনো প্রশ্নে যাওয়া যাবে</p>
                     
                     <div style="background:#f9f9f9; padding:10px; border-radius:5px; margin-top:10px; font-size:13px;">
                         <strong>কালার কোড (Legend):</strong>
@@ -123,7 +123,7 @@ function loadQuizFromFirebase(quizId) {
 document.getElementById('startTestBtn').addEventListener('click', () => {
     const name = document.getElementById('stdName').value.trim();
     if(!name) { alert("দয়া করে আপনার নাম লিখুন।"); return; }
-    localStorage.setItem('student_name', name); // Save name locally
+    localStorage.setItem('student_name', name);
 
     document.getElementById('instructionScreen').style.display = 'none';
     document.getElementById('quizMainArea').style.display = 'block';
@@ -222,7 +222,7 @@ document.getElementById('pauseBtn').addEventListener('click', () => {
     else { startTimer(); isPaused=false; b.innerText="Pause"; b.style.background="white"; b.style.color="#007bff"; ca.style.opacity='1'; }
 });
 
-// --- SUBMIT & RESULT ANALYSIS (Detailed) ---
+// --- SUBMIT & RESULT ANALYSIS ---
 function submitTest() {
     if(isSubmitted) return;
     isSubmitted = true;
@@ -246,7 +246,6 @@ function submitTest() {
             name: stdName, score: score, correct: c, wrong: w, date: new Date().toLocaleString()
         });
     }
-    // Save locally to show "Last Score" next time
     localStorage.setItem('last_score_' + currentQuizId, score);
 
     document.getElementById('resScore').innerText = score; 
@@ -254,7 +253,6 @@ function submitTest() {
     document.getElementById('resWrong').innerText = w; 
     document.getElementById('resSkip').innerText = sk;
     
-    // --- Pass/Fail Logic with Analysis ---
     const passBox = document.getElementById('passFailBox');
     
     if(s >= quizSettings.passMark) {
