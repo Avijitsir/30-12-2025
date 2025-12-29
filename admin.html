@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Admin Panel</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <script>MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };</script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="view-dashboard">
+            <h1 style="text-align:center; color:#3f37c9; margin-bottom:20px;">🎨 কুইজ ড্যাশবোর্ড</h1>
+            <div class="header-actions">
+                <h2 style="margin:0;">সকল কুইজ তালিকা</h2>
+                <button onclick="createNewQuiz()" class="primary-btn">+ নতুন কুইজ তৈরি করুন</button>
+            </div>
+            <input type="text" id="search-quiz" placeholder="🔍 কুইজের নাম দিয়ে খুঁজুন..." onkeyup="filterQuizzes()" style="padding:12px; border:2px solid #e0e0e0; border-radius:25px; padding-left:20px; width:100%;">
+            <div id="quiz-list-container" style="margin-top:10px;"><p>লোডিং হচ্ছে...</p></div>
+        </div>
+
+        <div id="view-results" style="display:none;">
+            <div class="sticky-header" style="display:flex; justify-content:space-between; padding:15px; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                <button onclick="showDashboard()" class="secondary-btn">&larr; ড্যাশবোর্ড</button>
+                <button onclick="exportToCSV()" style="background:#2e7d32; color:white; border:none; padding:8px 15px; border-radius:4px;">Excel ডাউনলোড</button>
+            </div>
+            <h2 style="margin-top:20px; color:#2e7d32;">📊 রেজাল্ট: <span id="res-quiz-title">...</span></h2>
+            <div class="table-responsive">
+                <table id="results-table">
+                    <thead><tr><th>নাম</th><th>স্কোর</th><th>তারিখ</th></tr></thead>
+                    <tbody id="results-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="view-editor" style="display:none;">
+            <div class="sticky-top">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <button onclick="showDashboard()" class="secondary-btn" style="background:#6c757d;">&larr; বাতিল</button>
+                    <h3 style="margin:0; color:#4361ee;">✏️ কুইজ এডিটর</h3>
+                    <button onclick="saveQuizData()" class="primary-btn" style="background:#28a745;">💾 Save & Close</button>
+                </div>
+            </div>
+
+            <div class="editor-grid">
+                <div class="editor-left">
+                    <div class="section-settings">
+                        <h3>১. কুইজ সেটিংস</h3>
+                        <input type="text" id="quiz-id-input" style="display:none;">
+                        <input type="text" id="quiz-title-input" placeholder="কুইজের নাম (Title)" style="font-weight:bold;">
+                        <div class="options-grid">
+                            <div><label>সময় (মি.):</label><input type="number" id="quiz-duration"></div>
+                            <div><label>পাস মার্ক:</label><input type="number" id="quiz-pass-mark"></div>
+                            <div><label>সঠিক (+):</label><input type="number" id="quiz-pos-mark"></div>
+                            <div><label>ভুল (-):</label><input type="number" id="quiz-neg-mark"></div>
+                        </div>
+                        <div style="background:#e1f5fe; padding:10px; border-radius:6px; margin:10px 0; border:1px dashed #039be5;">
+                            <label style="color:#0277bd; font-weight:bold; margin-bottom:5px; display:block;">Randomization:</label>
+                            <div style="display:flex; gap:20px;">
+                                <label style="display:flex; align-items:center; cursor:pointer;"><input type="checkbox" id="rand-question-check" style="width:auto; margin-right:5px;"> প্রশ্ন এলোমেলো</label>
+                                <label style="display:flex; align-items:center; cursor:pointer;"><input type="checkbox" id="rand-option-check" style="width:auto; margin-right:5px;"> অপশন এলোমেলো</label>
+                            </div>
+                        </div>
+                        <select id="question-subject-select">
+                            <option value="General Knowledge">General Knowledge</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Physics">Physics</option>
+                            <option value="English">English</option>
+                        </select>
+                    </div>
+
+                    <div class="section-question" id="question-form">
+                        <h3>২. নতুন প্রশ্ন যোগ করুন</h3>
+                        <label>Passage (Optional):</label><textarea id="passage-input" rows="2" placeholder="প্যাসেজ..."></textarea>
+                        
+                        <label>প্রশ্ন (Math Tools):</label>
+                        <div class="rich-toolbar" style="display:flex; flex-wrap:wrap; gap:5px; padding:5px; background:#eee;">
+                            <button onclick="formatText('bold')" title="Bold"><b>B</b></button>
+                            <button onclick="formatText('italic')" title="Italic"><i>I</i></button>
+                            <button onclick="insertMath('\\frac{a}{b}')" title="Fraction">$\frac{a}{b}$</button>
+                            <button onclick="insertMath('x^{2}')" title="Power">$x^2$</button>
+                            <button onclick="insertMath('\\sqrt{x}')" title="Square Root">$\sqrt{x}$</button>
+                            <button onclick="insertMath('x_{2}')" title="Subscript">$x_2$</button>
+                            <button onclick="insertMath('\\times')" title="Multiply">$\times$</button>
+                            <button onclick="insertMath('\\div')" title="Divide">$\div$</button>
+                            <button onclick="insertMath('\\pi')" title="Pi">$\pi$</button>
+                            <button onclick="insertMath('\\theta')" title="Theta">$\theta$</button>
+                            <button onclick="insertMath('\\degree')" title="Degree">°</button>
+                        </div>
+                        
+                        <div id="rich-q-text" class="rich-editor" contenteditable="true" style="min-height:100px; padding:10px; border:1px solid #ccc; background:white;"></div>
+                        
+                        <input type="file" id="q-img-input" accept="image/*" style="font-size:12px;">
+                        
+                        <div class="options-grid">
+                            <div><input type="text" id="o1" placeholder="A (Supports Math)"><input type="file" id="o1-img" class="mini-file"></div>
+                            <div><input type="text" id="o2" placeholder="B (Supports Math)"><input type="file" id="o2-img" class="mini-file"></div>
+                            <div><input type="text" id="o3" placeholder="C (Supports Math)"><input type="file" id="o3-img" class="mini-file"></div>
+                            <div><input type="text" id="o4" placeholder="D (Supports Math)"><input type="file" id="o4-img" class="mini-file"></div>
+                        </div>
+                        
+                        <label>সঠিক উত্তর:</label>
+                        <select id="c-opt" style="border-color:#4caf50;">
+                            <option value="0">Option A</option><option value="1">Option B</option>
+                            <option value="2">Option C</option><option value="3">Option D</option>
+                        </select>
+                        
+                        <label>ব্যাখ্যা:</label><textarea id="expl-input" rows="1" placeholder="Supports Math..."></textarea>
+                        <input type="file" id="expl-img" accept="image/*" style="font-size:12px;">
+                        
+                        <button id="add-question-btn" style="background:#4361ee; color:white; width:100%; padding:10px; margin-top:10px;">➕ যোগ করুন</button>
+                        <button id="update-question-btn" style="display:none; background:#ff9800; color:white; width:100%; padding:10px; margin-top:10px;">আপডেট করুন</button>
+                    </div>
+
+                    <div class="section-bulk">
+                        <h3>৩. বাল্ক অ্যাড</h3>
+                        <p style="font-size:11px; color:#666;">Math use format: $a^2 + b^2$ inside text.</p>
+                        <textarea id="bulk-input-textarea" rows="4" placeholder="Format: Question > Opt1 > Opt2 > Opt3 > Opt4 > Answer: Correct Answer"></textarea>
+                        <button id="process-bulk-btn" style="background:#9c27b0; color:white; width:100%; margin-top:5px;">⚡ বাল্ক প্রসেস</button>
+                    </div>
+                </div>
+
+                <div class="editor-right">
+                    <div class="preview-section" style="height:100%; display:flex; flex-direction:column;">
+                        <h3 style="background:#eee; padding:10px; margin:0; border-radius:4px;">📋 প্রশ্নের তালিকা (Preview)</h3>
+                        <div id="questions-container"></div>
+                        <div class="save-section" style="margin-top:10px; background:white; padding:10px;">
+                            <div id="share-link-box" style="display:none; background:#e8f5e9; padding:10px; border-radius:4px;">
+                                <input type="text" id="generated-link" readonly style="font-size:12px; width:100%;">
+                                <button onclick="copyLink()" style="background:#2e7d32; color:white; padding:5px 10px; width:100%; margin-top:5px;">Copy Link</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
